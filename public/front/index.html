@@ -4,9 +4,56 @@
     <meta charset="utf-8">
     <title> web sockets </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"> </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+            crossorigin="anonymous"></script>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
     <h1>Front</h1>
+    <br>
+    <br>
+    <h1>Session Code:</h1>
+    <h2 id="code">Loading code ...</h2>
+    <br>
+    <br>
+    <h1>Session:</h1>
+    <div id="session">
+        <div>
+            <table style="width:100%">
+                <tr>
+                    <th>Socket ID</th>
+                    <th>Session Code</th>
+                </tr>
+                <tr>
+                    <td id="socketId"></td>
+                    <td id="sessionCode"></td>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <div>
+            <table id="playersTable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Player Id</th>
+                        <th>Player Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <h1>Commando Arrived</h1>
+    <div id="commands"></div>
     <script src="front_client.js"></script>
 </body>
 </html>

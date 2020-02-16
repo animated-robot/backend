@@ -3,23 +3,24 @@ package main
 import (
 	"animated-robot/storage"
 	"animated-robot/tools"
-	"log"
-	"net/http"
+	"os"
 )
 
 func main() {
-	port := "8080"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-	logger := SetupDefaultLogger()
+	log := SetupDefaultLogger()
 	sessionStore := storage.NewSessionStoreInMemory(tools.NewCodeGenerator())
 	socketStore := storage.NewSocketStoreInMemory()
 
-	socket := NewSocket(socketStore, sessionStore, logger)
-	go socket.Serve()
-	defer socket.Close()
+	socketFactory := NewSocketFactory(socketStore, sessionStore, log)
+	server := socketFactory.New()
 
-	http.Handle("/socket.io/", socket)
-	http.Handle("/", http.FileServer(http.Dir("public")))
-	log.Println("Serving at localhost:"+ port +"...")
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	go server.Serve()
+	defer server.Close()
+
+	RouteAndListen(server, port)
 }

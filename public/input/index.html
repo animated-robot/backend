@@ -3,10 +3,40 @@
 <head>
     <meta charset="utf-8">
     <title> web sockets </title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+            crossorigin="anonymous"></script>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-    <h1>Input</h1>
-    <!--<script src="/game_client.js"></script-->
+    <h1>Input</h1><br><br>
+    <div>
+        <h2>Register Player</h2>
+        <table style="width:100%">
+            <thead>
+                <tr>
+                    <th>Session Code</th>
+                    <th>Player Name</th>
+                    <th>Send</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input id="sessionCode" type="text"/></td>
+                    <td><input id="playerName" type="text"/></td>
+                    <td><input type="button" onclick="registrePlayerOnClick()" value="Register Player!"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br><br><br>
+    <h2>Send Command</h2>
+    <div id="commands"></div>
+    <script src="input_client.js"></script>
 </body>
 </html>
