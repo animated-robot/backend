@@ -1,8 +1,12 @@
-FROM golang:buster
-WORKDIR /go/src/app
-COPY . .
+FROM golang:buster AS build-env
+WORKDIR /go/src
+COPY . animated-robot
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+RUN go get -v animated-robot/...
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app animated-robot/cmd
 
-CMD ["/go/bin/cmd"]
+FROM scratch
+WORKDIR /app
+COPY --from=build-env /go/src/app .
+
+CMD ["/app/app"]
