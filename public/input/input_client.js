@@ -1,10 +1,3 @@
-const socket = io.connect('http://localhost:8080/input');
-
-socket.on('player_registered', function (playerId) {
-    console.log("player registered. playerId: " + playerId);
-    createSendCommandBox(playerId)
-});
-
 function createSendCommandBox(playerId) {
     let sessionCode = $('#sessionCode').val();
 
@@ -41,7 +34,7 @@ function createSendCommandBox(playerId) {
 }
 
 function registerPlayer(sessionCode, playerName) {
-    socket.emit('register_player', '{"sessionCode": "' + sessionCode + '", "playerName": "' + playerName +'"}');
+    this.window.socket.emit('register_player', '{"sessionCode": "' + sessionCode + '", "playerName": "' + playerName +'"}');
 }
 
 function registrePlayerOnClick() {
@@ -55,7 +48,7 @@ function registrePlayerOnClick() {
 
 function sendCommand(playerId, sessionCode, x, y, activeActions) {
     let command = '{"playerId": "' + playerId + '", "sessionCode": "' + sessionCode +'", "activeActions": [' + activeActions + '], "direction": { "x": ' + x + ', "y": ' + y + '}}';
-    socket.emit('context', command);
+    this.window.socket.emit('context', command);
 }
 
 function sendCommandOnClick(index) {
@@ -69,3 +62,13 @@ function sendCommandOnClick(index) {
     sendCommand(playerId, sessionCode, x, y, activeActions)
 }
 
+function startSocket() {
+    let socketIp = $('#socketIp').val();
+
+    this.window.socket = io.connect(socketIp);
+
+    this.window.socket.on('player_registered', function (playerId) {
+        console.log("player registered. playerId: " + playerId);
+        createSendCommandBox(playerId)
+    });
+}
