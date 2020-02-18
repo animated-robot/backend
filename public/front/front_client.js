@@ -1,5 +1,3 @@
-const socket = io.connect('http://localhost:8080/front');
-
 function printSession(sessionJson) {
     let session = JSON.parse(sessionJson)
     console.log("session response: " + sessionJson)
@@ -47,16 +45,22 @@ function printInputContext(inputContextJson) {
     $('#commands').append(html);
 }
 
-socket.on('session_created', function (sessionJson) {
-    printSession(sessionJson)
-});
+function startSocket() {
+    let socketIp = $('#socketIp').val();
 
-socket.on('session_changed', function (sessionJson) {
-    printSession(sessionJson)
-});
+    const socket = io.connect(socketIp);
 
-socket.on('input_context', function (inputContext) {
-    printInputContext(inputContext)
-});
+    socket.on('session_created', function (sessionJson) {
+        printSession(sessionJson)
+    });
 
-socket.emit('create_session', '');
+    socket.on('session_changed', function (sessionJson) {
+        printSession(sessionJson)
+    });
+
+    socket.on('input_context', function (inputContext) {
+        printInputContext(inputContext)
+    });
+
+    socket.emit('create_session', '');
+}

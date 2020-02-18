@@ -3,6 +3,7 @@ package main
 import (
 	"animated-robot/storage"
 	"animated-robot/tools"
+	"net/http"
 	"os"
 )
 
@@ -22,5 +23,7 @@ func main() {
 	go server.Serve()
 	defer server.Close()
 
-	RouteAndListen(server, port)
+	http.Handle("/socket.io/", CorsMiddleware(server))
+	log.Println("Serving at :"+ port +"...")
+	log.Fatal(http.ListenAndServe(":" + port, nil))
 }
