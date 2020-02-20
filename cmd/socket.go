@@ -8,17 +8,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type SocketFactoryInterface interface {
+type ISocketFactory interface {
 	New() *socketio.Server
 }
 
 type SocketFactory struct {
-	socketStore storage.SocketStoreInterface
-	sessionStore storage.SessionStoreInterface
+	socketStore storage.ISocketStore
+	sessionStore storage.ISessionStore
 	log *logrus.Logger
 }
 
-func NewSocketFactory(socketStore storage.SocketStoreInterface, sessionStore storage.SessionStoreInterface, log *logrus.Logger) SocketFactoryInterface {
+func NewSocketFactory(socketStore storage.ISocketStore, sessionStore storage.ISessionStore, log *logrus.Logger) ISocketFactory {
 	return SocketFactory{
 		socketStore:  socketStore,
 		sessionStore: sessionStore,
@@ -140,7 +140,8 @@ func (sf SocketFactory) setupFrontNamespace(server *socketio.Server) {
 
 		return nil
 	})
-	server.OnEvent(frontNsp, "create_session", func(s socketio.Conn, _ string) {
+	server.OnEvent(frontNsp, "create_session", func(s socketio.Conn, str string) {
+		sf.log.Trace(str)
 		id, err := sf.socketStore.Store(s)
 		if err != nil {
 			sf.log.WithFields(logrus.Fields{

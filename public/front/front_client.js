@@ -48,7 +48,7 @@ function printInputContext(inputContextJson) {
 function startSocket() {
     let socketIp = $('#socketIp').val();
 
-    const socket = io.connect(socketIp);
+    const socket = io.connect(trimUrl(socketIp) + "/front");
 
     socket.on('session_created', function (sessionJson) {
         printSession(sessionJson)
@@ -62,5 +62,16 @@ function startSocket() {
         printInputContext(inputContext)
     });
 
-    socket.emit('create_session', '');
+    socket.emit('create_session', 'please, create session?');
+}
+
+function trimUrl(url) {
+    if (url === undefined)
+        return url;
+
+    url = url.trim();
+    if (url.substring(url.length -1) != '/')
+        return url;
+
+    return url.substring(0, url.length -1);
 }

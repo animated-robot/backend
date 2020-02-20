@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-type SessionStoreInterface interface {
+type ISessionStore interface {
 	Get(sessionCode string) (domain.Session, error)
 	Create(frontSocketId string) (string, error)
 	Delete(sessionCode string) error

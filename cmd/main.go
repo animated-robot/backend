@@ -3,7 +3,6 @@ package main
 import (
 	"animated-robot/storage"
 	"animated-robot/tools"
-	"net/http"
 	"os"
 )
 
@@ -18,12 +17,10 @@ func main() {
 	socketStore := storage.NewSocketStoreInMemory()
 
 	socketFactory := NewSocketFactory(socketStore, sessionStore, log)
-	server := socketFactory.New()
+	socket := socketFactory.New()
 
-	go server.Serve()
-	defer server.Close()
+	middleware := NewMiddlewarePipeline(log)
+	server := NewServer(middleware, socket, log)
 
-	http.Handle("/socket.io/", CorsMiddleware(server))
-	log.Println("Serving at :"+ port +"...")
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	server.Run(port)
 }

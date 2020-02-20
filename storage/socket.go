@@ -5,7 +5,7 @@ import (
 	socketio "github.com/googollee/go-socket.io"
 )
 
-type SocketStoreInterface interface {
+type ISocketStore interface {
 	Store(c socketio.Conn) (string, error)
 	Retrieve(id string) (socketio.Conn, error)
 	Remove(id string) error
