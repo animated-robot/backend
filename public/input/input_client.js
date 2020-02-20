@@ -54,14 +54,14 @@ const left = "left";
 const right = "right";
 
 
-const timeMs = 1;
-const boundary = 100;
-const stepsFromBorder = 20;
-const step = 1;
+let timeMs = 1;
+let boundary = 100;
+let stepsFromBorder = 20;
+let step = 1;
 
-const limit = boundary - stepsFromBorder;
-const initialX = -boundary + 1;
-const initialY =  boundary - 1;
+let limit = () => boundary - stepsFromBorder;
+let initialX = () => -boundary + 1;
+let initialY = () =>  boundary - 1;
 
 function initiateInfiniteWalking(index) {
 
@@ -73,7 +73,7 @@ function initiateInfiniteWalking(index) {
     let activeActions = $('#actice_actions_' + index).val();
 
     let direction = right;
-    let position = { x: initialX, y: initialY};
+    let position = { x: initialX(), y: initialY()};
 
     infiniteWalker(direction, position, playerId, sessionCode, activeActions)
 }
@@ -129,11 +129,12 @@ function move(direction, x, y) {
 }
 
 function inRange(direction, x, y) {
+    lmt = limit()
     switch (direction) {
-        case up:    return y < limit;
-        case down:  return y > -limit;
-        case left:  return x > -limit;
-        case right: return x < limit;
+        case up:    return y < lmt;
+        case down:  return y > -lmt;
+        case left:  return x > -lmt;
+        case right: return x < lmt;
         default:    return false;
     }
 }
