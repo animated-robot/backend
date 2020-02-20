@@ -1,3 +1,7 @@
+const canvas = document.getElementById('canvas')
+const ctx = canvas.getContext('2d')
+const players = {}
+
 function printSession(sessionJson) {
     let session = JSON.parse(sessionJson)
     console.log("session response: " + sessionJson)
@@ -9,12 +13,22 @@ function printSession(sessionJson) {
     $('#playersTable tbody tr').remove()
     session.players.forEach(function(element, index) {
         $('#playersTable').append("<tr><td>" + element.id + "</td><td>" + element.playerName + "</td><tr>")
+        players[element.playerId] = {
+            id: element.playerId,
+            name: element.playerName,
+            x: canvas.width / 2 - 16,
+            y: canvas.height / 2 - 16
+        }
     });
 }
 
 function printInputContext(inputContextJson) {
 
     let inputContex = JSON.parse(inputContextJson)
+    players[inputContex.playerId] = {
+        ...players[inputContex.playerId],
+        ...inputContex.direction
+    }
 
     var html = `
 <div>
@@ -64,3 +78,18 @@ function startSocket() {
 
     socket.emit('create_session', '');
 }
+
+const cx = canvas.width / 2 - 16
+const cy = canvas.height / 2 - 16
+function renderGame () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    Object.values(players).forEach(({ x, y, color }) => {
+        ctx.fillStyle = 'red'
+        ctx.fillRect(cx + x * 400, cy + y * 300, 32, 32)  
+    })
+
+    window.requestAnimationFrame(renderGame)
+}
+
+renderGame()
