@@ -118,7 +118,7 @@ func (sf SocketFactory) setupInputNamespace(server *socketio.Server) {
 		frontSocket.Emit("input_context", inputContextJson)
 		sf.log.WithFields(logrus.Fields{
 			"socketId":    frontSocket.ID(),
-			"sessionCode": session.Code,
+			"sessionCode": session.SessionCode,
 		}).Info("InputConnection: OnEvent: input context sent to front")
 	})
 	server.OnError(inputNsp, func(s socketio.Conn, e error) {
@@ -145,6 +145,45 @@ func (sf SocketFactory) setupFrontNamespace(server *socketio.Server) {
 		}).Info("FrontConnection: OnConnect: connection stablished")
 
 		return nil
+	})
+	server.OnEvent(frontNsp, "enter_session", func(s socketio.Conn, sessionCode string) {
+		sockerId, err := sf.socketStore.Store(s)
+		if err != nil {
+			sf.log.WithFields(logrus.Fields{
+				"socketId": s.ID(),
+				"sessionCode": sessionCode,
+				"event": "enter_session",
+				"message": err.Error(),
+			}).Error("FrontConnection: OnEvent: ")
+		}
+
+1		err = sf.sessionStore.UpdateSocketId(sessionCode, sockerId)
+		if err != nil {
+			sf.log.WithFields(logrus.Fields{
+				"socketId": sockerId,
+				"sessionCode": sessionCode,
+				"event": "enter_session",
+				"message": err.Error(),
+			}).Error("FrontConnection: OnEvent: ")
+		}
+
+		_, sessionJson, err := sf.getAndJSONParseSession(sessionCode)
+		if err != nil {
+			sf.log.WithFields(logrus.Fields{
+				"socketId": sockerId,
+				"event": "enter_session",
+				"message": err.Error(),
+				"sessionCode": sessionCode,
+			}).Error("FrontConnection: OnEvent: Could not get and parse session")
+		}
+
+		s.Emit("session_entered", sessionJson)
+		sf.log.WithFields(logrus.Fields{
+			"event": "enter_session",
+			"socketId":    sockerId,
+			"sessionCode": sessionCode,
+			"response": sessionJson,
+		}).Info("FrontConnection: OnEvent: input context sent to front")
 	})
 	server.OnEvent(frontNsp, "create_session", func(s socketio.Conn, str string) {
 		sf.log.Trace(str)
@@ -175,6 +214,12 @@ func (sf SocketFactory) setupFrontNamespace(server *socketio.Server) {
 		}
 
 		s.Emit("session_created", sessionJson)
+		sf.log.WithFields(logrus.Fields{
+			"event": "create_session",
+			"socketId":    s.ID(),
+			"sessionCode": sessionCode,
+			"response": sessionJson,
+		}).Info("FrontConnection: OnEvent: input context sent to front")
 	})
 	server.OnError(frontNsp, func(s socketio.Conn, e error)  {
 		sf.log.WithFields(logrus.Fields{

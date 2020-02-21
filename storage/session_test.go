@@ -57,7 +57,7 @@ func TestNewSessionStoreInMemory(t *testing.T) {
 	session, _ := sessionStore.Get(code)
 
 	assert.NotNil(t, session)
-	assert.Equal(t, session.Code, code)
+	assert.Equal(t, session.SessionCode, code)
 
 	sessionStore.AddPlayer(code, playerId)
 

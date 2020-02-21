@@ -52,7 +52,7 @@ func NewMiddlewarePipeline(logger *logrus.Logger) Middleware{
 	ms := NewMiddlewares(logger)
 
 	mps := NewMiddlewarePipeliner()
-	return mps.Pipeline(ms.LogRequest, ms.CorsMiddleware)
+	return mps.Pipeline(/*ms.LogRequest, */ms.CorsMiddleware)
 }
 
 /// Middlewares ///

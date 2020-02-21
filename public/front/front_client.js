@@ -22,11 +22,11 @@ function printSession(sessionJson) {
 
 function printInputContext(inputContextJson) {
 
-    let inputContex = JSON.parse(inputContextJson)
+    let inputContex = JSON.parse(inputContextJson);
     players[inputContex.playerId] = {
         ...players[inputContex.playerId],
         ...inputContex.direction
-    }
+    };
 
     var html = `
 <div>
@@ -58,23 +58,38 @@ function printInputContext(inputContextJson) {
 }
 
 function startSocket() {
-    let socketIp = $('#socketIp').val();
+    this.window.socket = io.connect(getSockerIp());
 
-    const socket = io.connect(trimUrl(socketIp) + "/front");
-
-    socket.on('session_created', function (sessionJson) {
+    this.window.socket.on('session_created', function (sessionJson) {
         printSession(sessionJson)
     });
 
-    socket.on('session_changed', function (sessionJson) {
+    this.window.socket.on('session_changed', function (sessionJson) {
         printSession(sessionJson)
     });
 
-    socket.on('input_context', function (inputContext) {
+    this.window.socket.on('session_entered', function (sessionJson) {
+        printSession(sessionJson)
+    });
+
+    this.window.socket.on('input_context', function (inputContext) {
         printInputContext(inputContext)
     });
+}
 
-    socket.emit('create_session', 'please, create session?');
+function getSockerIp() {
+    let socketIp = $('#socketIp').val();
+
+    return trimUrl(socketIp) + "/front";
+}
+
+function createSession() {
+    this.window.socket.emit('create_session', 'please, create session?');
+}
+
+function enterSession() {
+    const sessionCode = $('#enterSession_sessionCode').val();
+    this.window.socket.emit('enter_session', sessionCode);
 }
 
 function trimUrl(url) {
@@ -87,6 +102,7 @@ function trimUrl(url) {
 
     return url.substring(0, url.length -1);
 }
+
 
 const cx = canvas.width / 2 - 16
 const cy = canvas.height / 2 - 16

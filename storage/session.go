@@ -10,6 +10,7 @@ import (
 type ISessionStore interface {
 	Get(sessionCode string) (domain.Session, error)
 	Create(frontSocketId string) (string, error)
+	UpdateSocketId(sessionCode string, socketId string) error
 	Delete(sessionCode string) error
 	GetPlayers(sessionCode string) ([]uuid.UUID, error)
 	AddPlayer(sessionCode string, playerId uuid.UUID) error
@@ -35,6 +36,23 @@ type SessionStoreInMemory struct {
 //	return domain.Player{}, fmt.Errorf("SessionStoreInMemory: GetPlayer: player %s not found on session %s", playerId, sessionCode)
 //}
 
+func (s *SessionStoreInMemory) UpdateSocketId(sessionCode string, socketId string) error{
+	session, err := s.Get(sessionCode)
+	if err != nil {
+		return err
+	}
+	session.FrontSocketId = socketId
+
+	for index, sess := range s.sessions {
+		if sess.SessionCode == sessionCode {
+			s.sessions[index] = session
+			return nil
+		}
+	}
+
+	return fmt.Errorf("UpdateSocketId: Could not find session code: %s", sessionCode)
+}
+
 func (s *SessionStoreInMemory) GetPlayers(sessionCode string) ([]uuid.UUID, error) {
 	session, err := s.Get(sessionCode)
 	if err != nil {
@@ -46,7 +64,7 @@ func (s *SessionStoreInMemory) GetPlayers(sessionCode string) ([]uuid.UUID, erro
 func (s *SessionStoreInMemory) AddPlayer(sessionCode string, id uuid.UUID) error {
 
 	for index, session := range s.sessions {
-		if session.Code == sessionCode {
+		if session.SessionCode == sessionCode {
 			s.sessions[index].PlayersIds = append(s.sessions[index].PlayersIds, id)
 			return nil
 		}
@@ -63,12 +81,12 @@ func removePlayer(session *domain.Session, playerId uuid.UUID) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("SessionStoreInMemory: RemovePlayer: player %s not found for session %s", playerId, session.Code)
+	return fmt.Errorf("SessionStoreInMemory: RemovePlayer: player %s not found for session %s", playerId, session.SessionCode)
 }
 
 func (s *SessionStoreInMemory) RemovePlayer(sessionCode string, id uuid.UUID) error {
 	for index, session := range s.sessions {
-		if session.Code == sessionCode {
+		if session.SessionCode == sessionCode {
 			return removePlayer(&s.sessions[index], id)
 		}
 	}
@@ -85,7 +103,7 @@ func NewSessionStoreInMemory(generator tools.CodeGenerator) *SessionStoreInMemor
 
 func (s *SessionStoreInMemory) Get(sessionCode string) (domain.Session, error) {
 	for _, session := range s.sessions {
-		if session.Code == sessionCode {
+		if session.SessionCode == sessionCode {
 			return session, nil
 		}
 	}
@@ -98,8 +116,8 @@ func (s *SessionStoreInMemory) Create(frontSocketId string) (string, error) {
 
 	s.sessions = append(s.sessions, domain.Session{
 		FrontSocketId: frontSocketId,
-		Code:    code,
-		PlayersIds: []uuid.UUID{},
+		SessionCode:   code,
+		PlayersIds:    []uuid.UUID{},
 	})
 
 	return code, nil
@@ -107,7 +125,7 @@ func (s *SessionStoreInMemory) Create(frontSocketId string) (string, error) {
 
 func (s *SessionStoreInMemory) Delete(sessionCode string) error {
 	for index, session := range s.sessions {
-		if session.Code == sessionCode {
+		if session.SessionCode == sessionCode {
 			next := index + 1
 			s.sessions = append(s.sessions[:index], s.sessions[next:]...)
 			return nil
