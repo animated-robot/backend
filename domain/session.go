@@ -1,8 +1,10 @@
 package domain
 
+import "github.com/google/uuid"
+
 type Session struct {
 	FrontSocketId string `json:"socketId"`
 	Code string	`json:"sessionCode"`
-	Players []Player `json:"players"`
+	PlayersIds []uuid.UUID `json:"playersIds"`
 }
 

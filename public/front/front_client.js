@@ -11,11 +11,9 @@ function printSession(sessionJson) {
     $('#socketId').text(session.socketId)
 
     $('#playersTable tbody tr').remove()
-    session.players.forEach(function(element, index) {
-        $('#playersTable').append("<tr><td>" + element.id + "</td><td>" + element.playerName + "</td><tr>")
-        players[element.playerId] = {
-            id: element.playerId,
-            name: element.playerName,
+    session.playersIds.forEach(function(element, index) {
+        $('#playersTable').append("<tr><td>" + element + "</td>")
+        players[element] = {
             x: canvas.width / 2 - 16,
             y: canvas.height / 2 - 16
         }

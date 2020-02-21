@@ -3,6 +3,7 @@ package main
 import (
 	"animated-robot/domain"
 	"animated-robot/storage"
+	"animated-robot/tools"
 	"encoding/json"
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/sirupsen/logrus"
@@ -13,13 +14,15 @@ type ISocketFactory interface {
 }
 
 type SocketFactory struct {
+	uuidGenerator tools.UUIDGenerator
 	socketStore storage.ISocketStore
 	sessionStore storage.ISessionStore
 	log *logrus.Logger
 }
 
-func NewSocketFactory(socketStore storage.ISocketStore, sessionStore storage.ISessionStore, log *logrus.Logger) ISocketFactory {
+func NewSocketFactory(socketStore storage.ISocketStore, sessionStore storage.ISessionStore, uuidGenerator tools.UUIDGenerator, log *logrus.Logger) ISocketFactory {
 	return SocketFactory{
+		uuidGenerator: uuidGenerator,
 		socketStore:  socketStore,
 		sessionStore: sessionStore,
 		log:          log,
@@ -59,9 +62,10 @@ func (sf SocketFactory) setupInputNamespace(server *socketio.Server) {
 			}).Error("InputConnection: OnEvent: Could not parse from json string")
 		}
 
-		player := storage.NewPlayer(registerPlayer.PlayerName)
-		err = sf.sessionStore.AddPlayer(registerPlayer.SessionCode, player)
+		playerId, _ := sf.uuidGenerator.Generate()
+		err = sf.sessionStore.AddPlayer(registerPlayer.SessionCode, playerId)
 		if err != nil {
+			player, _ := json.Marshal(registerPlayer.Player)
 			sf.log.WithFields(logrus.Fields{
 				"player": player,
 				"event": "register_player",
@@ -69,7 +73,7 @@ func (sf SocketFactory) setupInputNamespace(server *socketio.Server) {
 			}).Error("InputConnection: OnEvent: Could not store player")
 		}
 		// input
-		s.Emit("player_registered", player.Id)
+		s.Emit("player_registered", playerId.String())
 
 		// front
 		session, sessionJson, err := sf.getAndJSONParseSession(registerPlayer.SessionCode)
@@ -119,11 +123,13 @@ func (sf SocketFactory) setupInputNamespace(server *socketio.Server) {
 	})
 	server.OnError(inputNsp, func(s socketio.Conn, e error) {
 		sf.log.WithFields(logrus.Fields{
+			"socketId": s.ID(),
 			"message": e.Error(),
 		}).Error("InputConnection: OnError: meet error", e)
 	})
 	server.OnDisconnect(inputNsp, func(s socketio.Conn, reason string) {
 		sf.log.WithFields(logrus.Fields{
+			"socketId": s.ID(),
 			"reason": reason,
 		}).Info("InputConnection: OnDisconnect: disconnected")
 	})
@@ -172,11 +178,13 @@ func (sf SocketFactory) setupFrontNamespace(server *socketio.Server) {
 	})
 	server.OnError(frontNsp, func(s socketio.Conn, e error)  {
 		sf.log.WithFields(logrus.Fields{
+			"socketId": s.ID(),
 			"message": e.Error(),
-		}).Error("FrontConnection: OnError: meet error", e)
+		}).Error("FrontConnection: OnError: meet error")
 	})
 	server.OnDisconnect(frontNsp, func(s socketio.Conn, reason string) {
 		sf.log.WithFields(logrus.Fields{
+			"socketId": s.ID(),
 			"reason": reason,
 		}).Info("FrontConnection: OnDisconnect: disconnected")
 	})

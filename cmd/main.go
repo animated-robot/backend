@@ -15,8 +15,9 @@ func main() {
 	log := SetupDefaultLogger()
 	sessionStore := storage.NewSessionStoreInMemory(tools.NewCodeGenerator())
 	socketStore := storage.NewSocketStoreInMemory()
+	uuidGenerator := tools.NewUUIDGenerator()
 
-	socketFactory := NewSocketFactory(socketStore, sessionStore, log)
+	socketFactory := NewSocketFactory(socketStore, sessionStore, uuidGenerator,log)
 	socket := socketFactory.New()
 
 	middleware := NewMiddlewarePipeline(log)

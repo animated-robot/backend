@@ -5,6 +5,28 @@ import (
 	"github.com/google/uuid"
 )
 
+
+
+type UUIDGenerator interface {
+	Generate() (uuid.UUID, error)
+}
+
+func NewUUIDGenerator() UUIDGenerator {
+	return UUIDGen{}
+}
+
+type UUIDGen struct{}
+
+func (u UUIDGen) Generate() (uuid.UUID, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return [16]byte{}, err
+	}
+	return id, nil
+}
+
+
+
 type CodeGenerator interface {
 	Generate() string
 }
@@ -12,7 +34,9 @@ type CodeGenerator interface {
 func NewCodeGenerator() CodeGenerator{
 	return CodeGen{}
 }
+
 type CodeGen struct {}
+
 
 func (c CodeGen) Generate() string {
 	// TODO implement proper code generator

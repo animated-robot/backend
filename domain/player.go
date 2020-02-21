@@ -1,6 +1,3 @@
 package domain
 
-type Player struct {
-	Id string `json:"id"`
-	Name string `json:"playerName"`
-}
+type Player map[string]interface{}

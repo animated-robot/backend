@@ -1,7 +1,9 @@
 package storage
 
 import (
-	"animated-robot/domain"
+	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,9 +16,32 @@ func (mg MyGenerator) Generate() string {
 	return mg.Code
 }
 
+func TestJson(t *testing.T) {
+	type Player map[string]interface{}
+	str := `{ 
+		"name": "joao",
+		"color": "black",
+		"height": 1.85
+	}`
+
+	var player Player
+	err := json.Unmarshal([]byte(str), &player)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	player["id"] = "lçkajsflkasjlksafj"
+
+	p, err := json.Marshal(player)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	playerJson := string(p)
+	fmt.Printf("player: %s", playerJson)
+}
+
 func TestNewSessionStoreInMemory(t *testing.T) {
 	code := "my test"
-	playerId := "player id"
+	playerId := uuid.New()
 	socketId := "front socket id"
 
 	myGenerator := MyGenerator{
@@ -34,21 +59,9 @@ func TestNewSessionStoreInMemory(t *testing.T) {
 	assert.NotNil(t, session)
 	assert.Equal(t, session.Code, code)
 
-	sessionStore.AddPlayer(code, domain.Player{
-		Id:   playerId,
-		Name: "Joaozinho",
-	})
-
-	player, _ := sessionStore.GetPlayer(code, playerId)
-
-	assert.NotNil(t, player)
-	assert.Equal(t, playerId, player.Id)
+	sessionStore.AddPlayer(code, playerId)
 
 	sessionStore.RemovePlayer(code, playerId)
-
-	_, notFoundPlayer := sessionStore.GetPlayer(code, playerId)
-
-	assert.NotNil(t, notFoundPlayer)
 
 	sessionStore.Delete(code)
 
