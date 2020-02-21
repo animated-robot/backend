@@ -39,7 +39,21 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 
 - ###### create_session (game => backend)
 ```
-<no payload>
+"please, create session?"
+```
+
+- ###### enter_session (game => backend)
+```
+"1A2B"
+```
+
+- ###### session_entered (backend => game)
+```
+{ 
+   "socketId":"3",
+   "sessionCode":"QT6R",
+   "playersIds":[]
+}
 ```
 
 - ###### session_created (backend => game)
@@ -47,7 +61,7 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 { 
    "socketId":"3",
    "sessionCode":"QT6R",
-   "players":[]
+   "playersIds":[]
 }
 ```
 
@@ -71,26 +85,27 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 { 
    "socketId":"3",
    "sessionCode":"QT6R",
-   "players":[ 
-      { 
-         "id":"84087abf-bfe2-4338-a2d1-8fe9b3e36df2",
-         "playerName":"joao"
-      },
-      { 
-         "id":"e31e6a0d-4cd3-4b7b-af11-efbdda87060b",
-         "playerName":"pedro"
-      }
+   "playersIds":[ 
+      "84087abf-bfe2-4338-a2d1-8fe9b3e36df2",
+      "e31e6a0d-4cd3-4b7b-af11-efbdda87060b"
    ]
 }
 ``` 
 
 ### Events from/to the controller (/input):
 
+** REMEMBER: the backend just **
+
 - ###### register_player (input => backend)
 ```
 { 
    "sessionCode":"ABCD",
-   "playerName":"john"
+   "player": {
+      "id": "a2c79158-ea05-4a3d-adc0-27948b480e54",
+      "name": "Zak",
+      "color": "blue",
+      "height": 1.9
+   }
 }
 ```
 
@@ -106,6 +121,21 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
    "sessionCode":"QT6R",
    "activeActions":[ 
       0.1
+   ],
+   "direction":{ 
+      "x":0.1,
+      "y":0.1
+   }
+}
+```
+
+- ###### input_context (input => backend)
+```
+{ 
+   "playerId":"a16dc6d7-a5cd-4775-82c2-1807ee6d9846",
+   "sessionCode":"PO6M",
+   "activeActions":[ 
+      "attack"
    ],
    "direction":{ 
       "x":0.1,
