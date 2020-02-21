@@ -157,7 +157,7 @@ func (sf SocketFactory) setupFrontNamespace(server *socketio.Server) {
 			}).Error("FrontConnection: OnEvent: ")
 		}
 
-1		err = sf.sessionStore.UpdateSocketId(sessionCode, sockerId)
+		err = sf.sessionStore.UpdateSocketId(sessionCode, sockerId)
 		if err != nil {
 			sf.log.WithFields(logrus.Fields{
 				"socketId": sockerId,
