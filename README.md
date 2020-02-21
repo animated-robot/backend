@@ -114,21 +114,6 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 "080ae447-2fa5-4e55-8d73-0c4669afc2d9"
 ```
 
-- context (input => backend)
-```
-{ 
-   "playerId":"84087abf-bfe2-4338-a2d1-8fe9b3e36df2",
-   "sessionCode":"QT6R",
-   "activeActions":[ 
-      0.1
-   ],
-   "direction":{ 
-      "x":0.1,
-      "y":0.1
-   }
-}
-```
-
 - ###### input_context (input => backend)
 ```
 { 
