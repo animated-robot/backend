@@ -1,6 +1,7 @@
 package main
 
 import (
+	socket2 "animated-robot/cmd/socket"
 	"animated-robot/storage"
 	"animated-robot/tools"
 	"os"
@@ -17,7 +18,7 @@ func main() {
 	socketStore := storage.NewSocketStoreInMemory()
 	uuidGenerator := tools.NewUUIDGenerator()
 
-	socketFactory := NewSocketFactory(socketStore, sessionStore, uuidGenerator,log)
+	socketFactory := socket2.NewSocketFactory(socketStore, sessionStore, uuidGenerator,log)
 	socket := socketFactory.New()
 
 	middleware := NewMiddlewarePipeline(log)

@@ -3,7 +3,6 @@ package main
 import (
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/sirupsen/logrus"
-	"log"
 	"net/http"
 )
 
@@ -30,6 +29,6 @@ func (s *Server) Run(port string) {
 	defer s.socket.Close()
 
 	http.Handle("/socket.io/", s.middleware(s.socket))
-	log.Println("Serving at :"+ port +"...")
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	s.log.Println("Serving at :"+ port +"...")
+	s.log.Fatal(http.ListenAndServe(":" + port, nil))
 }
