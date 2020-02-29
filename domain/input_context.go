@@ -7,7 +7,7 @@ type Direction struct {
 
 type InputContext struct {
 	PlayerId      string    `json:"playerId"`
-	SessionCode   string    `json: "sessionCode"`
-	Direction     Direction `json: "direction"`
-	ActiveActions []string  `json: "activeActions"`
+	SessionCode   string    `json:"sessionCode"`
+	Direction     Direction `json:"direction"`
+	ActiveActions []string  `json:"activeActions"`
 }

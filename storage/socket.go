@@ -31,6 +31,10 @@ func (s *SocketStoreInMemory) Store(c socketio.Conn) (string, error) {
 }
 
 func (s *SocketStoreInMemory) Retrieve(id string) (socketio.Conn, error) {
+	if id == "" {
+		return nil, fmt.Errorf("SocketStoreInMemory.Retrieve: socketId can't be null or empty")
+	}
+
 	for _, socket := range s.sockets {
 		if socket.ID() == id {
 			return socket, nil
@@ -40,6 +44,10 @@ func (s *SocketStoreInMemory) Retrieve(id string) (socketio.Conn, error) {
 }
 
 func (s *SocketStoreInMemory) Remove(id string) error {
+	if id == "" {
+		return fmt.Errorf("SocketStoreInMemory.Remove: socketId can't be null or empty")
+	}
+
 	for index, socket := range s.sockets {
 		if socket.ID() == id {
 			next := index + 1

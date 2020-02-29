@@ -31,7 +31,7 @@ func (sf SocketFactory) New() *socketio.Server {
 	server, err := socketio.NewServer(nil)
 	if err != nil {
 		sf.log.WithFields(logrus.Fields{
-			"message": err.Error(),
+			"error": err.Error(),
 		}).Fatal("NewSocket: Error creating socket")
 	}
 

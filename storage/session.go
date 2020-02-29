@@ -12,8 +12,8 @@ type ISessionStore interface {
 	Create(frontSocketId string) (string, error)
 	UpdateSocketId(sessionCode string, socketId string) error
 	Delete(sessionCode string) error
-	GetPlayers(sessionCode string) ([]uuid.UUID, error)
-	AddPlayer(sessionCode string, playerId uuid.UUID) error
+	GetPlayers(sessionCode string) ([]domain.Player, error)
+	AddPlayer(sessionCode string, player domain.Player) error
 	RemovePlayer(sessionCode string, playerId uuid.UUID) error
 }
 
@@ -53,19 +53,19 @@ func (s *SessionStoreInMemory) UpdateSocketId(sessionCode string, socketId strin
 	return fmt.Errorf("UpdateSocketId: Could not find session code: %s", sessionCode)
 }
 
-func (s *SessionStoreInMemory) GetPlayers(sessionCode string) ([]uuid.UUID, error) {
+func (s *SessionStoreInMemory) GetPlayers(sessionCode string) ([]domain.Player, error) {
 	session, err := s.Get(sessionCode)
 	if err != nil {
 		return nil, err
 	}
-	return session.PlayersIds, nil
+	return session.Players, nil
 }
 
-func (s *SessionStoreInMemory) AddPlayer(sessionCode string, id uuid.UUID) error {
+func (s *SessionStoreInMemory) AddPlayer(sessionCode string, player domain.Player) error {
 
 	for index, session := range s.sessions {
 		if session.SessionCode == sessionCode {
-			s.sessions[index].PlayersIds = append(s.sessions[index].PlayersIds, id)
+			s.sessions[index].Players = append(s.sessions[index].Players, player)
 			return nil
 		}
 	}
@@ -74,10 +74,10 @@ func (s *SessionStoreInMemory) AddPlayer(sessionCode string, id uuid.UUID) error
 }
 
 func removePlayer(session *domain.Session, playerId uuid.UUID) error {
-	for index, id := range session.PlayersIds {
-		if id == playerId {
+	for index, player := range session.Players {
+		if player["id"] == playerId {
 			next := index + 1
-			session.PlayersIds = append(session.PlayersIds[:index], session.PlayersIds[next:]...)
+			session.Players = append(session.Players[:index], session.Players[next:]...)
 			return nil
 		}
 	}
@@ -117,7 +117,7 @@ func (s *SessionStoreInMemory) Create(frontSocketId string) (string, error) {
 	s.sessions = append(s.sessions, domain.Session{
 		FrontSocketId: frontSocketId,
 		SessionCode:   code,
-		PlayersIds:    []uuid.UUID{},
+		Players:       []domain.Player{},
 	})
 
 	return code, nil

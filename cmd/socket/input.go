@@ -38,8 +38,8 @@ func (n InputNamespace) OnDisconnect(s socketio.Conn, reason string) {
 func (n InputNamespace) OnError(s socketio.Conn, e error) {
 	n.log.WithFields(logrus.Fields{
 		"socketId": s.ID(),
-		"message": e.Error(),
-	}).Error("InputConnection: OnError: meet error", e)
+		"error": e.Error(),
+	}).Error("InputConnection: OnError: meet error")
 }
 
 func (n InputNamespace) OnEvents() map[string]OnEventHandler {
@@ -69,13 +69,14 @@ func (n InputNamespace) onRegisterPlayer(s socketio.Conn, inputPlayerJson string
 	}
 
 	playerId, _ := n.uuidGenerator.Generate()
-	err = n.sessionStore.AddPlayer(registerPlayer.SessionCode, playerId)
+	registerPlayer.Player["id"] = playerId
+	err = n.sessionStore.AddPlayer(registerPlayer.SessionCode, registerPlayer.Player)
 	if err != nil {
 		player, _ := json.Marshal(registerPlayer.Player)
 		n.log.WithFields(logrus.Fields{
 			"player": player,
 			"event": "register_player",
-			"message": err.Error(),
+			"error": err.Error(),
 		}).Error("InputConnection: OnEvent: Could not store player")
 	}
 	// input
@@ -86,7 +87,7 @@ func (n InputNamespace) onRegisterPlayer(s socketio.Conn, inputPlayerJson string
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
 			"event": "create_session",
-			"message": err.Error(),
+			"error": err.Error(),
 			"sessionCode": registerPlayer.SessionCode,
 		}).Error("InputConnection: OnEvent: Could not get and parse session")
 	}
@@ -103,13 +104,14 @@ func (n InputNamespace) onInputContext(s socketio.Conn, inputContextJson string)
 		n.log.WithFields(logrus.Fields{
 			"input": inputContextJson,
 			"event": "context",
+			"error": err.Error(),
 		}).Error("InputConnection: OnEvent: Could not parse from json string")
 	}
 
 	session, err := n.sessionStore.Get(inputContext.SessionCode)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
-			"message": err.Error(),
+			"error": err.Error(),
 			"event":   "context",
 		}).Error("InputConnection: OnEvent: Error getting session")
 	}
@@ -117,15 +119,16 @@ func (n InputNamespace) onInputContext(s socketio.Conn, inputContextJson string)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
 			"socketId": session.FrontSocketId,
-			"message":  err.Error(),
+			"error":  err.Error(),
 			"event":    "context",
-		}).Error("InputConnection: OnEvent: Error getting skt")
+		}).Error("InputConnection: OnEvent: Error getting socket")
 	}
 
 	frontSocket.Emit("input_context", inputContextJson)
 	n.log.WithFields(logrus.Fields{
 		"socketId":    frontSocket.ID(),
 		"sessionCode": session.SessionCode,
+		"context": inputContextJson,
 	}).Info("InputConnection: OnEvent: input context sent to front")
 }
 

@@ -14,11 +14,9 @@ function sendCommandOnClick(index) {
     sendCommand(context.playerId, context.sessionCode, context.x, context.y, context.activeActions)
 }
 
-function sendCommand(playerId,sessionCode, x, y, activeActions) {
+function sendCommand(playerId, sessionCode, x, y, activeActions) {
     const direction  = newDirection(x, y);
-    const player = newPlayer(playerId);
-    const context = newContext(sessionCode, activeActions, player, direction);
-    //let command = '{"playerId": "' + playerId + '", "sessionCode": "' + sessionCode +'", "activeActions": [' + activeActions + '], "direction": { "x": ' + x + ', "y": ' + y + '}}';
+    const context = newContext(sessionCode, activeActions, playerId, direction);
     this.window.socket.emit('context', JSON.stringify(context));
 }
 
@@ -33,7 +31,7 @@ function createRegisterPlayerPayload(sessionCode, playerName) {
         player: {
             name: playerName
         }
-    }
+    };
 
     return JSON.stringify(payload)
 }
