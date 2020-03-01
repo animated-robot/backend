@@ -43,9 +43,9 @@ func (n FrontNamespace) OnDisconnect(s socketio.Conn, reason string) {
 	}).Info("FrontConnection: OnDisconnect: disconnected")
 }
 
-func (n FrontNamespace) OnError(c socketio.Conn, e error) {
+func (n FrontNamespace) OnError(s socketio.Conn, e error) {
 	n.log.WithFields(logrus.Fields{
-		"socketId": c.ID(),
+		"socketId": s.ID(),
 		"error": e.Error(),
 	}).Error("FrontConnection: OnError: meet error")
 }

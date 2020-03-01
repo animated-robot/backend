@@ -35,8 +35,8 @@ func (sf SocketFactory) New() *socketio.Server {
 		}).Fatal("NewSocket: Error creating socket")
 	}
 
-	setupNamespace(server, NewFrontNamespace(sf.socketStore, sf.sessionStore, sf.log))
-	setupNamespace(server, NewInputNamespace(sf.socketStore, sf.sessionStore, sf.log, sf.uuidGenerator))
+	setupNamespace(server, NewLogEventWrapper(NewFrontNamespace(sf.socketStore, sf.sessionStore, sf.log), sf.log))
+	setupNamespace(server, NewLogEventWrapper(NewInputNamespace(sf.socketStore, sf.sessionStore, sf.log, sf.uuidGenerator), sf.log))
 
 	return server
 }

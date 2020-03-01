@@ -1,6 +1,8 @@
 function startSocket() {
 
-    this.window.socket = io.connect(parseSocketIp());
+    this.window.socket = io.connect(parseSocketIp(), {
+        transports: ['websocket']
+    });
 
     this.window.socket.on('player_registered', function (playerId) {
         console.log("player registered. playerId: " + playerId);

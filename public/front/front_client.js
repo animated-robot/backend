@@ -58,7 +58,9 @@ function printInputContext(inputContextJson) {
 }
 
 function startSocket() {
-    this.window.socket = io.connect(getSockerIp());
+    this.window.socket = io.connect(getSockerIp(), {
+        transports: ['websocket']
+    });
 
     this.window.socket.on('session_created', function (sessionJson) {
         printSession(sessionJson)
@@ -104,19 +106,19 @@ function trimUrl(url) {
 }
 
 
-const cx = canvas.width / 2 - 16
-const cy = canvas.height / 2 - 16
+const cx = canvas.width / 2 - 16;
+const cy = canvas.height / 2 - 16;
 function renderGame () {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     Object.values(players).forEach(({ x, y, color }) => {
-        ctx.fillStyle = 'red'
-        ctx.fillRect(cx + x * 400, cy + y * 300, 32, 32)  
-    })
+        ctx.fillStyle = 'red';
+        ctx.fillRect(cx + x * 400, cy + y * 300, 32, 32);
+    });
 
     data = new Date();
     console.log("renderizou: " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds());
-    window.requestAnimationFrame(renderGame)
+    window.requestAnimationFrame(renderGame);
 }
 
-renderGame()
+renderGame();

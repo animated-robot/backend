@@ -52,7 +52,7 @@ func NewMiddlewarePipeline(logger *logrus.Logger) Middleware{
 	ms := NewMiddlewares(logger)
 
 	mps := NewMiddlewarePipeliner()
-	return mps.Pipeline(/*ms.LogRequest, */ms.CorsMiddleware)
+	return mps.Pipeline(ms.LogRequest, ms.CorsMiddleware)
 }
 
 /// Middlewares ///
@@ -72,17 +72,22 @@ func (m Middlewares) CorsMiddleware(next http.Handler) http.Handler {
 
 func (m Middlewares) LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		reqJson, err := m.parseRequestToJson(r)
-		if err != nil {
-			m.log.WithFields(logrus.Fields{
-				"middleware": "LogRequest",
-			}).Trace("Error during request parsing")
-		} else {
-			m.log.WithFields(logrus.Fields{
-				"middleware": "LogRequest",
-				"request": reqJson,
-			}).Trace("Log Request Middleware")
-		}
+		m.log.WithFields(logrus.Fields{
+			"remoteAddress": r.RemoteAddr,
+			"uri": r.RequestURI,
+			"originHeader": r.Header.Get("Origin"),
+		}).Trace("Log Request")
+		//reqJson, err := m.parseRequestToJson(r)
+		//if err != nil {
+		//	m.log.WithFields(logrus.Fields{
+		//		"middleware": "LogRequest",
+		//	}).Trace("Error during request parsing")
+		//} else {
+		//	m.log.WithFields(logrus.Fields{
+		//		"middleware": "LogRequest",
+		//		"request": reqJson,
+		//	}).Trace("Log Request Middleware")
+		//}
 		next.ServeHTTP(w, r)
 	})
 }
