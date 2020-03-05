@@ -1,4 +1,4 @@
-FROM golang:buster AS build-env
+FROM golang:1.13.8 AS build-env
 WORKDIR /go/src
 COPY . animated-robot
 
