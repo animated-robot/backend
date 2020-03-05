@@ -27,8 +27,6 @@ func (n FrontNamespace) GetNamespace() string {
 }
 
 func (n FrontNamespace) OnConnect(s socketio.Conn) error {
-	s.SetContext("")
-
 	n.log.WithFields(logrus.Fields{
 		"socketId": s.ID(),
 	}).Info("FrontConnection: OnConnect: connection stablished")
@@ -59,21 +57,23 @@ func (n FrontNamespace) OnEvents() map[string]OnEventHandler {
 
 func (n FrontNamespace) createSession(s socketio.Conn, str string) {
 	n.log.Trace(str)
-	id, err := n.socketStore.Store(s)
+	socketId := s.ID()
+	err := n.socketStore.Store(s)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
-			"socketId": id,
+			"socketId": socketId,
 			"error":    err.Error(),
 		}).Error("FrontConnection: OnConnect: Socket storing failed")
+		return
 	}
 	n.log.WithFields(logrus.Fields{
-		"socketId": id,
+		"socketId": socketId,
 	}).Trace("FrontConnection: OnConnect: socket stored")
 
-	sessionCode, _ := n.sessionStore.Create(s.ID())
+	sessionCode, _ := n.sessionStore.Create(socketId)
 	n.log.WithFields(logrus.Fields{
 		"sessionCode":   sessionCode,
-		"frontSocketId": s.ID(),
+		"frontSocketId": socketId,
 	}).Info("FrontConnection: OnConnect: Session Created")
 
 	_, sessionJson, err := n.getAndJSONParseSession(sessionCode)
@@ -83,26 +83,29 @@ func (n FrontNamespace) createSession(s socketio.Conn, str string) {
 			"error": err.Error(),
 			"sessionCode": sessionCode,
 		}).Error("InputConnection: OnEvent: Could not get and parse session")
+		return
 	}
 
 	s.Emit("session_created", sessionJson)
 	n.log.WithFields(logrus.Fields{
 		"event": "create_session",
-		"socketId":    s.ID(),
+		"socketId":    socketId,
 		"sessionCode": sessionCode,
 		"session": sessionJson,
 	}).Info("FrontConnection: OnEvent: session sent to front")
 }
 
 func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
-	socketId, err := n.socketStore.Store(s)
+	socketId := s.ID()
+	err := n.socketStore.Store(s)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
-			"socketId": s.ID(),
+			"socketId": socketId,
 			"sessionCode": sessionCode,
 			"event": "enter_session",
 			"error": err.Error(),
 		}).Error("FrontConnection: OnEvent: ")
+		return
 	}
 
 	err = n.sessionStore.UpdateSocketId(sessionCode, socketId)
@@ -113,6 +116,7 @@ func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
 			"event":       "enter_session",
 			"error":     err.Error(),
 		}).Error("FrontConnection: OnEvent: ")
+		return
 	}
 
 	_, sessionJson, err := n.getAndJSONParseSession(sessionCode)
@@ -123,6 +127,7 @@ func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
 			"error":     err.Error(),
 			"sessionCode": sessionCode,
 		}).Error("FrontConnection: OnEvent: Could not get and parse session")
+		return
 	}
 
 	s.Emit("session_entered", sessionJson)

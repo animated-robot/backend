@@ -6,7 +6,7 @@ import (
 )
 
 type ISocketStore interface {
-	Store(c socketio.Conn) (string, error)
+	Store(c socketio.Conn) error
 	Retrieve(id string) (socketio.Conn, error)
 	Remove(id string) error
 }
@@ -21,13 +21,13 @@ func NewSocketStoreInMemory() *SocketStoreInMemory{
 	}
 }
 
-func (s *SocketStoreInMemory) Store(c socketio.Conn) (string, error) {
+func (s *SocketStoreInMemory) Store(c socketio.Conn) error {
 	if c == nil {
-		return "", fmt.Errorf("SocketStoreInMemory.Store: cannot save a null socket connection")
+		return fmt.Errorf("SocketStoreInMemory.Store: cannot save a null socket connection")
 	}
 
 	s.sockets = append(s.sockets, c)
-	return c.ID(), nil
+	return nil
 }
 
 func (s *SocketStoreInMemory) Retrieve(id string) (socketio.Conn, error) {

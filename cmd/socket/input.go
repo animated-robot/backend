@@ -66,6 +66,7 @@ func (n InputNamespace) onRegisterPlayer(s socketio.Conn, inputPlayerJson string
 			"input": inputPlayerJson,
 			"event": "register_player",
 		}).Error("InputConnection: OnEvent: Could not parse from json string")
+		return
 	}
 
 	playerId, _ := n.uuidGenerator.Generate()
@@ -78,6 +79,7 @@ func (n InputNamespace) onRegisterPlayer(s socketio.Conn, inputPlayerJson string
 			"event": "register_player",
 			"error": err.Error(),
 		}).Error("InputConnection: OnEvent: Could not store player")
+		return
 	}
 	// input
 	s.Emit("player_registered", playerId.String())
@@ -90,6 +92,7 @@ func (n InputNamespace) onRegisterPlayer(s socketio.Conn, inputPlayerJson string
 			"error": err.Error(),
 			"sessionCode": registerPlayer.SessionCode,
 		}).Error("InputConnection: OnEvent: Could not get and parse session")
+		return
 	}
 
 	socket, err := n.socketStore.Retrieve(session.FrontSocketId)
@@ -106,6 +109,7 @@ func (n InputNamespace) onInputContext(s socketio.Conn, inputContextJson string)
 			"event": "context",
 			"error": err.Error(),
 		}).Error("InputConnection: OnEvent: Could not parse from json string")
+		return
 	}
 
 	session, err := n.sessionStore.Get(inputContext.SessionCode)
@@ -114,6 +118,7 @@ func (n InputNamespace) onInputContext(s socketio.Conn, inputContextJson string)
 			"error": err.Error(),
 			"event":   "context",
 		}).Error("InputConnection: OnEvent: Error getting session")
+		return
 	}
 	frontSocket, err := n.socketStore.Retrieve(session.FrontSocketId)
 	if err != nil {
@@ -122,6 +127,7 @@ func (n InputNamespace) onInputContext(s socketio.Conn, inputContextJson string)
 			"error":  err.Error(),
 			"event":    "context",
 		}).Error("InputConnection: OnEvent: Error getting socket")
+		return
 	}
 
 	frontSocket.Emit("input_context", inputContextJson)
