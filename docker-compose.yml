@@ -10,6 +10,8 @@ services:
     build: .
     image: back
     environment:
+      - "ENV=PROD"
       - "PORT=8080"
+      - "LOG_LEVEL=TRACE"
     ports:
       - "8080:8080"
