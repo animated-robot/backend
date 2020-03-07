@@ -4,11 +4,27 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
+	"path"
 	"time"
 )
 
-func SetupDefaultLogger(level string) *logrus.Logger{
-	return SetupLogger(nil, nil, ParseLogLevel(level))
+func SetupDefaultLogger(level string, logPath string) *logrus.Logger{
+	logFile := getLogFilePath(logPath)
+	return SetupLogger(nil, nil, ParseLogLevel(level), logFile)
+}
+
+func getLogFilePath(logPath string) string {
+	if logPath == "" {
+		cw, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		logPath = cw
+	}
+
+	timestamp := time.Now().Format(time.RFC3339)
+	logName := "log_" + timestamp + ".txt"
+	return path.Join(logPath, logName)
 }
 
 func ParseLogLevel(level string) logrus.Level {
@@ -22,12 +38,11 @@ func ParseLogLevel(level string) logrus.Level {
 	}
 }
 
-func SetupLogger(output io.Writer, format logrus.Formatter, level logrus.Level) *logrus.Logger{
+func SetupLogger(output io.Writer, format logrus.Formatter, level logrus.Level, logFile string) *logrus.Logger{
 	logger := logrus.New()
 
 	if output == nil {
-		timestamp := time.Now().Format(time.RFC3339)
-		logFile, err := os.OpenFile("log_" + timestamp + ".txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+		logFile, err := os.OpenFile(logFile, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 		if err != nil {
 			panic(err)
 		}
@@ -40,8 +55,11 @@ func SetupLogger(output io.Writer, format logrus.Formatter, level logrus.Level) 
 		format = &logrus.JSONFormatter{}
 	}
 	logger.SetFormatter(format)
-
 	logger.SetLevel(level)
+
+	logger.WithFields(logrus.Fields{
+		"file": logFile,
+	}).Info("SetupLogger: Logger Created")
 
 	return logger
 }

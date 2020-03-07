@@ -12,6 +12,7 @@ const PROD = "PROD"
 type Configuration struct {
 	PORT      string
 	LOG_LEVEL string
+	LOG_FILE_PATH string
 }
 
 func MustGetEnvVars() *Configuration {
@@ -23,15 +24,16 @@ func MustGetEnvVars() *Configuration {
 	}
 
 	return &Configuration{
-		PORT:      GetVar("PORT"),
-		LOG_LEVEL: GetVar("LOG_LEVEL"),
+		PORT:      GetVar("PORT", true),
+		LOG_LEVEL: GetVar("LOG_LEVEL", true),
+		LOG_FILE_PATH: GetVar("LOG_FILE_PATH", false),
 	}
 }
 
-func GetVar(key string) string {
+func GetVar(key string, required bool) string {
 	envVar := os.Getenv(key)
 
-	if envVar == "" {
+	if envVar == "" && required{
 		panic(fmt.Errorf("environemnt variable %s can't be empty", key))
 	}
 

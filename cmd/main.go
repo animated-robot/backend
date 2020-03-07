@@ -9,7 +9,7 @@ import (
 func main() {
 	config := MustGetEnvVars()
 
-	log := SetupDefaultLogger(config.LOG_LEVEL)
+	log := SetupDefaultLogger(config.LOG_LEVEL, config.LOG_FILE_PATH)
 	sessionStore := storage.NewSessionStoreInMemory(tools.NewCodeGenerator())
 	socketStore := storage.NewSocketStoreInMemory()
 	uuidGenerator := tools.NewUUIDGenerator()
