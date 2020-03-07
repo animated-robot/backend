@@ -4,7 +4,7 @@ const left = "left";
 const right = "right";
 
 
-let timeMs = 1;
+let timeMs = 10;
 let boundary = 100;
 let stepsFromBorder = 20;
 let step = 1;
@@ -16,15 +16,12 @@ let initialY = () =>  boundary - 1;
 
 function initiateInfiniteWalking(index) {
 
-    let sessionCode = $('#sessionCode_sendCommand_' + index).val();
-    let playerId = $('#playerId_' + index).val();
+    const sessionCode = $('#sessionCode_sendCommand_' + index).val();
+    const playerId = $('#playerId_' + index).val();
 
-    let x = $('#x_' + index).val();
-    let y = $('#y_' + index).val();
-    let activeActions = $('#actice_actions_' + index).val();
-
-    let direction = right;
-    let position = { x: initialX(), y: initialY()};
+    const activeActions = [];
+    const direction = right;
+    const position = { x: initialX(), y: initialY()};
 
     infiniteWalker(direction, position, playerId, sessionCode, activeActions)
 }
@@ -34,10 +31,10 @@ function infiniteWalker(direction, position, playerId, sessionCode, activeAction
     setTimeout(function() {
         sendCommand(playerId, sessionCode, position.x / boundary, position.y / boundary, activeActions);
 
-        data = new Date();
-        console.log("inputou: " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds())
+        const data = new Date();
+        console.log("inputou: " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds());
 
-        walk = walking(direction, position);
+        const walk = walking(direction, position);
 
         infiniteWalker(walk.direction, walk.position, playerId, sessionCode, activeActions);
     }, timeMs);
@@ -46,9 +43,7 @@ function infiniteWalker(direction, position, playerId, sessionCode, activeAction
 
 function walking(direction, position) {
 
-    let newPosition;
-
-    newPosition = move(direction, position.x, position.y);
+    const newPosition = move(direction, position.x, position.y);
     if (inRange(direction, newPosition.x, newPosition.y)) {
         return {
             direction: direction,
@@ -80,7 +75,7 @@ function move(direction, x, y) {
 }
 
 function inRange(direction, x, y) {
-    lmt = limit()
+    const lmt = limit();
     switch (direction) {
         case up:    return y < lmt;
         case down:  return y > -lmt;

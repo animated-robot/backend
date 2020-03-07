@@ -27,8 +27,6 @@ func (n FrontNamespace) GetNamespace() string {
 }
 
 func (n FrontNamespace) OnConnect(s socketio.Conn) error {
-	s.SetContext("")
-
 	n.log.WithFields(logrus.Fields{
 		"socketId": s.ID(),
 	}).Info("FrontConnection: OnConnect: connection stablished")
@@ -43,10 +41,10 @@ func (n FrontNamespace) OnDisconnect(s socketio.Conn, reason string) {
 	}).Info("FrontConnection: OnDisconnect: disconnected")
 }
 
-func (n FrontNamespace) OnError(c socketio.Conn, e error) {
+func (n FrontNamespace) OnError(s socketio.Conn, e error) {
 	n.log.WithFields(logrus.Fields{
-		"socketId": c.ID(),
-		"message": e.Error(),
+		"socketId": s.ID(),
+		"error": e.Error(),
 	}).Error("FrontConnection: OnError: meet error")
 }
 
@@ -59,50 +57,55 @@ func (n FrontNamespace) OnEvents() map[string]OnEventHandler {
 
 func (n FrontNamespace) createSession(s socketio.Conn, str string) {
 	n.log.Trace(str)
-	id, err := n.socketStore.Store(s)
+	socketId := s.ID()
+	err := n.socketStore.Store(s)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
-			"socketId": id,
+			"socketId": socketId,
 			"error":    err.Error(),
 		}).Error("FrontConnection: OnConnect: Socket storing failed")
+		return
 	}
 	n.log.WithFields(logrus.Fields{
-		"socketId": id,
-	}).Trace("FrontConnection: OnConnect: skt stored")
+		"socketId": socketId,
+	}).Trace("FrontConnection: OnConnect: socket stored")
 
-	sessionCode, _ := n.sessionStore.Create(s.ID())
+	sessionCode, _ := n.sessionStore.Create(socketId)
 	n.log.WithFields(logrus.Fields{
 		"sessionCode":   sessionCode,
-		"frontSocketId": s.ID(),
+		"frontSocketId": socketId,
 	}).Info("FrontConnection: OnConnect: Session Created")
 
 	_, sessionJson, err := n.getAndJSONParseSession(sessionCode)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
 			"event": "create_session",
-			"message": err.Error(),
+			"error": err.Error(),
 			"sessionCode": sessionCode,
 		}).Error("InputConnection: OnEvent: Could not get and parse session")
+		return
 	}
 
 	s.Emit("session_created", sessionJson)
 	n.log.WithFields(logrus.Fields{
 		"event": "create_session",
-		"socketId":    s.ID(),
+		"socketId":    socketId,
 		"sessionCode": sessionCode,
-		"response": sessionJson,
-	}).Info("FrontConnection: OnEvent: input context sent to front")
+		"session": sessionJson,
+	}).Info("FrontConnection: OnEvent: session sent to front")
 }
 
 func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
-	socketId, err := n.socketStore.Store(s)
+	socketId := s.ID()
+	err := n.socketStore.Store(s)
 	if err != nil {
 		n.log.WithFields(logrus.Fields{
-			"socketId": s.ID(),
+			"socketId": socketId,
 			"sessionCode": sessionCode,
 			"event": "enter_session",
-			"message": err.Error(),
+			"error": err.Error(),
 		}).Error("FrontConnection: OnEvent: ")
+		return
 	}
 
 	err = n.sessionStore.UpdateSocketId(sessionCode, socketId)
@@ -111,8 +114,9 @@ func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
 			"socketId":    socketId,
 			"sessionCode": sessionCode,
 			"event":       "enter_session",
-			"message":     err.Error(),
+			"error":     err.Error(),
 		}).Error("FrontConnection: OnEvent: ")
+		return
 	}
 
 	_, sessionJson, err := n.getAndJSONParseSession(sessionCode)
@@ -120,9 +124,10 @@ func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
 		n.log.WithFields(logrus.Fields{
 			"socketId":    socketId,
 			"event":       "enter_session",
-			"message":     err.Error(),
+			"error":     err.Error(),
 			"sessionCode": sessionCode,
 		}).Error("FrontConnection: OnEvent: Could not get and parse session")
+		return
 	}
 
 	s.Emit("session_entered", sessionJson)
@@ -130,8 +135,8 @@ func (n FrontNamespace) enterSession(s socketio.Conn, sessionCode string) {
 		"event":       "enter_session",
 		"socketId":    socketId,
 		"sessionCode": sessionCode,
-		"response":    sessionJson,
-	}).Info("FrontConnection: OnEvent: input context sent to front")
+		"session": sessionJson,
+	}).Info("FrontConnection: OnEvent: session sent to front")
 }
 
 func (n FrontNamespace) getAndJSONParseSession(sessionCode string) (domain.Session, string, error) {
@@ -140,7 +145,7 @@ func (n FrontNamespace) getAndJSONParseSession(sessionCode string) (domain.Sessi
 		return domain.Session{}, "", err
 	}
 
-	sessionJson, _ := json.Marshal(session)
+	sessionJson, err := json.Marshal(session)
 	if err != nil {
 		return session, "", err
 	}

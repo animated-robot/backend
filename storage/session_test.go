@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"animated-robot/domain"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -42,6 +43,8 @@ func TestJson(t *testing.T) {
 func TestNewSessionStoreInMemory(t *testing.T) {
 	code := "my test"
 	playerId := uuid.New()
+	player := domain.Player{}
+	player["id"] = playerId
 	socketId := "front socket id"
 
 	myGenerator := MyGenerator{
@@ -59,7 +62,7 @@ func TestNewSessionStoreInMemory(t *testing.T) {
 	assert.NotNil(t, session)
 	assert.Equal(t, session.SessionCode, code)
 
-	sessionStore.AddPlayer(code, playerId)
+	sessionStore.AddPlayer(code, player)
 
 	sessionStore.RemovePlayer(code, playerId)
 

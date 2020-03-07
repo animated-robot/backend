@@ -14,11 +14,11 @@ function newPlayer(id) {
     }
 }
 
-function newContext(sessionCode, activeActions, player, direction) {
+function newContext(sessionCode, activeActions, playerId, direction) {
     return {
         sessionCode: sessionCode,
         activeActions: activeActions,
-        player: player,
+        playerId: playerId,
         direction: direction
     }
 }

@@ -1,16 +1,16 @@
-FROM golang:buster AS build-env
-WORKDIR /go/src
-COPY . animated-robot
-
-RUN go get -v animated-robot/...
+FROM golang:1.13.8 AS build-env
+WORKDIR /go/src/animated-robot
+COPY . .
+WORKDIR /go/src/animated-robot/cmd
+RUN go get -v
 RUN go get github.com/go-delve/delve/cmd/dlv
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -gcflags "all=-N -l" -o app animated-robot/cmd
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -gcflags "all=-N -l" -o app .
 
 FROM alpine:3.7
 EXPOSE 8080 40000
 RUN apk add --no-cache libc6-compat
 WORKDIR /
 COPY --from=build-env /go/bin/dlv .
-COPY --from=build-env /go/src/app .
+COPY --from=build-env /go/src/animated-robot/cmd/app .
 
 CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "exec", "/app"]

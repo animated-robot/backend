@@ -1,28 +1,24 @@
 package main
 
 import (
-	socket2 "animated-robot/cmd/socket"
+	"animated-robot/cmd/socket"
 	"animated-robot/storage"
 	"animated-robot/tools"
-	"os"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	config := MustGetEnvVars()
 
-	log := SetupDefaultLogger()
+	log := SetupDefaultLogger(config.LOG_LEVEL)
 	sessionStore := storage.NewSessionStoreInMemory(tools.NewCodeGenerator())
 	socketStore := storage.NewSocketStoreInMemory()
 	uuidGenerator := tools.NewUUIDGenerator()
 
-	socketFactory := socket2.NewSocketFactory(socketStore, sessionStore, uuidGenerator,log)
+	socketFactory := socket.NewSocketFactory(socketStore, sessionStore, uuidGenerator, log)
 	socket := socketFactory.New()
 
 	middleware := NewMiddlewarePipeline(log)
 	server := NewServer(middleware, socket, log)
 
-	server.Run(port)
+	server.Run(config.PORT)
 }

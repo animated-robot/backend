@@ -6,17 +6,27 @@ import (
 	"testing"
 )
 
+type EmptyConn struct {
+	id string
+	socketio.Conn
+}
 
-// TODO new(socketio.Conn returns nil connection struct
+func (c EmptyConn) ID() string {
+	return c.id
+}
+
 func Test_SocketStore(t *testing.T) {
-	conn := new(socketio.Conn)
+	id := "myID"
+	conn := EmptyConn{
+		id: id,
+	}
 	socketStore := NewSocketStoreInMemory()
 
-	_, err := socketStore.Store(nil)
+	err := socketStore.Store(nil)
 	assert.Error(t, err)
 
-	id, _ := socketStore.Store(*conn)
-	assert.NotEmpty(t, id)
+	err = socketStore.Store(conn)
+	assert.Nil(t, err)
 
 	_, err = socketStore.Retrieve("")
 	assert.Error(t, err)

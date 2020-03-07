@@ -31,12 +31,12 @@ func (sf SocketFactory) New() *socketio.Server {
 	server, err := socketio.NewServer(nil)
 	if err != nil {
 		sf.log.WithFields(logrus.Fields{
-			"message": err.Error(),
+			"error": err.Error(),
 		}).Fatal("NewSocket: Error creating socket")
 	}
 
-	setupNamespace(server, NewFrontNamespace(sf.socketStore, sf.sessionStore, sf.log))
-	setupNamespace(server, NewInputNamespace(sf.socketStore, sf.sessionStore, sf.log, sf.uuidGenerator))
+	setupNamespace(server, NewLogEventWrapper(NewFrontNamespace(sf.socketStore, sf.sessionStore, sf.log), sf.log))
+	setupNamespace(server, NewLogEventWrapper(NewInputNamespace(sf.socketStore, sf.sessionStore, sf.log, sf.uuidGenerator), sf.log))
 
 	return server
 }

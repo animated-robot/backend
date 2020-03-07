@@ -1,22 +1,22 @@
-const canvas = document.getElementById('canvas')
-const ctx = canvas.getContext('2d')
-const players = {}
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const players = {};
 
 function printSession(sessionJson) {
-    let session = JSON.parse(sessionJson)
-    console.log("session response: " + sessionJson)
+    let session = JSON.parse(sessionJson);
+    console.log("session response: " + sessionJson);
     console.log("session code: " + session.sessionCode);
-    $('#code').text(session.sessionCode)
-    $('#sessionCode').text(session.sessionCode)
-    $('#socketId').text(session.socketId)
+    $('#code').text(session.sessionCode);
+    $('#sessionCode').text(session.sessionCode);
+    $('#socketId').text(session.socketId);
 
-    $('#playersTable tbody tr').remove()
-    session.playersIds.forEach(function(element, index) {
-        $('#playersTable').append("<tr><td>" + element + "</td>")
+    $('#playersTable tbody tr').remove();
+    session.players.forEach(function(element, index) {
+        $('#playersTable').append("<tr><td>" + element.id + "</td><td>" + element.name + "</td></tr>>");
         players[element] = {
             x: canvas.width / 2 - 16,
             y: canvas.height / 2 - 16
-        }
+        };
     });
 }
 
@@ -58,7 +58,9 @@ function printInputContext(inputContextJson) {
 }
 
 function startSocket() {
-    this.window.socket = io.connect(getSockerIp());
+    this.window.socket = io.connect(getSockerIp(), {
+        transports: ['websocket']
+    });
 
     this.window.socket.on('session_created', function (sessionJson) {
         printSession(sessionJson)
@@ -104,19 +106,19 @@ function trimUrl(url) {
 }
 
 
-const cx = canvas.width / 2 - 16
-const cy = canvas.height / 2 - 16
+const cx = canvas.width / 2 - 16;
+const cy = canvas.height / 2 - 16;
 function renderGame () {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     Object.values(players).forEach(({ x, y, color }) => {
-        ctx.fillStyle = 'red'
-        ctx.fillRect(cx + x * 400, cy + y * 300, 32, 32)  
-    })
+        ctx.fillStyle = 'red';
+        ctx.fillRect(cx + x * 400, cy + y * 300, 32, 32);
+    });
 
     data = new Date();
     console.log("renderizou: " + data.getHours() + ":" + data.getMinutes() + ":" + data.getSeconds());
-    window.requestAnimationFrame(renderGame)
+    window.requestAnimationFrame(renderGame);
 }
 
-renderGame()
+renderGame();
