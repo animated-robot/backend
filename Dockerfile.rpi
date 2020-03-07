@@ -3,7 +3,7 @@ WORKDIR /go/src/animated-robot
 COPY . .
 WORKDIR /go/src/animated-robot/cmd
 RUN go get -v
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -installsuffix cgo -o app .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -v -a -installsuffix cgo -o app .
 
 FROM scratch
 WORKDIR /app
