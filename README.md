@@ -52,7 +52,7 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 { 
    "socketId":"3",
    "sessionCode":"QT6R",
-   "playersIds":[]
+   "players":[]
 }
 ```
 
@@ -61,34 +61,25 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 { 
    "socketId":"3",
    "sessionCode":"QT6R",
-   "playersIds":[]
+   "players":[]
 }
 ```
 
 - ###### input_context (backend => game)
 ```
 { 
-   "playerId":"a16dc6d7-a5cd-4775-82c2-1807ee6d9846",
    "sessionCode":"PO6M",
-   "activeActions":[ 
-      "attack"
-   ],
-   "direction":{ 
-      "x":0.1,
-      "y":0.1
-   }
+   ...
 }
 ```
+*The backend will only need the sessionCode information to retrieve the front session and redirect this payload to it. Therefore, the payload can have **ANY** information in any form. The only constraint is that 1) the payload should be an object and 2) have a field called "sessionCode" of type string.*
 
 - ###### session_changed (backend => game)
 ```
 { 
    "socketId":"3",
    "sessionCode":"QT6R",
-   "playersIds":[ 
-      "84087abf-bfe2-4338-a2d1-8fe9b3e36df2",
-      "e31e6a0d-4cd3-4b7b-af11-efbdda87060b"
-   ]
+   "players":[]
 }
 ``` 
 
@@ -117,8 +108,8 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
 - ###### input_context (input => backend)
 ```
 { 
-   "playerId":"a16dc6d7-a5cd-4775-82c2-1807ee6d9846",
    "sessionCode":"PO6M",
+   "playerId":"a16dc6d7-a5cd-4775-82c2-1807ee6d9846",
    "activeActions":[ 
       "attack"
    ],
@@ -126,5 +117,8 @@ Two ports will open on localhost: 8080 (backend service) and 3000 (input/game si
       "x":0.1,
       "y":0.1
    }
+   ...
 }
 ```
+
+*This input context is just an example of a valid payload. It can have any information in any form **AS LONG AS** it is an object and it has a "sessionCode" field of type string*
