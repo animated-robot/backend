@@ -5,8 +5,6 @@ jobs:
       - image: tmaier/docker-compose
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
 
       - run:
           name: Build, Test and Deploy
