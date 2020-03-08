@@ -10,13 +10,11 @@ jobs:
       - run:
           name: Build, Test and Deploy
           command: |
-            pwd
-            ls -lha
-            docker run --rm -it \
-                --name ar_cicd \
+            docker create --name ar_cicd \
                 -e "SSH_USER=$SSH_USER" \
                 -e "SSH_PASS=$SSH_PASS" \
                 -e "SSH_SERVER=$SSH_SERVER" \
                 -e "SSH_FOLDER=$SSH_FOLDER" \
-                -v /root/project:/go/src/animated-robot \
                 joaopio/animated-robot-cicd
+            docker cp . ar_cicd:/go/src/animated-robot
+            docker start -a ar_cicd
