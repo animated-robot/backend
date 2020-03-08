@@ -1,0 +1,7 @@
+FROM golang:1.14-alpine AS build-env
+WORKDIR /go/src
+COPY build.sh .
+RUN chmod +x build.sh
+RUN apk update && apk add --no-cache git openssh-client sshpass
+
+CMD ["./build.sh"]

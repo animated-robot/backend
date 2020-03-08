@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: tmaier/docker-compose
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build, Test and Deploy
+          command: |
+            docker run --rm -it \
+                --name ar_cicd \
+                -e "SSH_USER=$SSH_USER" \
+                -e "SSH_PASS=$SSH_PASS" \
+                -e "SSH_SERVER=$SSH_SERVER" \
+                -e "SSH_FOLDER=$SSH_FOLDER" \
+                -v $(pwd):/go/src/animated-robot \
+                joaopio/animated-robot-cicd
