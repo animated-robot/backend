@@ -18,5 +18,5 @@ jobs:
                 -e "SSH_PASS=$SSH_PASS" \
                 -e "SSH_SERVER=$SSH_SERVER" \
                 -e "SSH_FOLDER=$SSH_FOLDER" \
-                -v $(pwd):/go/src/animated-robot \
+                -v /root/project:/go/src/animated-robot \
                 joaopio/animated-robot-cicd
