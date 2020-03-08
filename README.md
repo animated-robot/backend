@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/animated-robot/backend.svg?style=shield)](https://circleci.com/gh/animated-robot/backend)
+
 # What is this app?
 
 This app routes all the requests that comes from the input to its respective game session. 
