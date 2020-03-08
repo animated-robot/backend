@@ -10,6 +10,7 @@ jobs:
       - run:
           name: Build, Test and Deploy
           command: |
+            pwd
             docker run --rm -it \
                 --name ar_cicd \
                 -e "SSH_USER=$SSH_USER" \
