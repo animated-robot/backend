@@ -5,6 +5,7 @@ jobs:
       - image: tmaier/docker-compose
     steps:
       - checkout
+      - setup_remote_docker
 
       - run:
           name: Build, Test and Deploy
